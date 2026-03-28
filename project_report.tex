@@ -183,6 +183,89 @@
 Object detection is a fundamental task in computer vision that involves identifying and localizing objects within an image. In this project, we implemented the YOLOv5 algorithm to perform object detection on the Pascal VOC 2012 dataset, which contains images of 20 different object classes. The goal was to train a model that can accurately detect and classify objects in the images, and to evaluate its performance using standard metrics.
 
 
+%% ==================  DATASET  ============================
+\section{Dataset}
+
+\subsection{Pascal VOC 2012}
+
+The Pascal VOC 2012 (Visual Object Classes) dataset is a widely used benchmark
+for evaluating object detection and image segmentation algorithms.
+It contains real-world photographs spanning \textbf{20 object categories}:
+aeroplane, bicycle, bird, boat, bottle, bus, car, cat, chair, cow,
+dining table, dog, horse, motorbike, person, potted plant, sheep, sofa,
+train, and TV monitor.
+
+Each image is annotated with axis-aligned bounding boxes in YOLO format:
+one text file per image, each line encoding a single object as
+$\langle\text{class}\rangle\;x_c\;y_c\;w\;h$,
+where $(x_c, y_c)$ is the box centre and $(w, h)$ its width and height,
+all normalised to $[0,1]$ relative to the image dimensions.
+The dataset is divided into two splits as shown in Table~\ref{tab:splits}.
+
+\begin{table}[h!]
+  \centering
+  \caption{Dataset split sizes}
+  \label{tab:splits}
+  \begin{tabular}{lc}
+    \toprule
+    \textbf{Split} & \textbf{Images} \\
+    \midrule
+    Train          & 13{,}690        \\
+    Validation     &  3{,}422        \\
+    \midrule
+    \textbf{Total} & \textbf{17{,}112} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Class Distribution and Imbalance}
+
+Table~\ref{tab:classdist} reports the number of annotated instances per class
+in the training set.
+The distribution is severely skewed: the \textbf{person} class dominates
+with \textbf{13{,}168} instances — more than five times the count of the next
+most frequent class (\textit{chair}, 2{,}467) and roughly 24 times that of
+the least represented class (\textit{bus}, 537).
+This pattern reflects a natural bias in everyday photography, where people
+appear far more frequently than other object categories.
+
+\begin{table}[h!]
+  \centering
+  \caption{Annotated instances per class in the training set.
+           The dominant class is highlighted.}
+  \label{tab:classdist}
+  \begin{tabular}{lc lc}
+    \toprule
+    \textbf{Class}  & \textbf{Instances}
+    & \textbf{Class}  & \textbf{Instances} \\
+    \midrule
+    Aeroplane    & 808        & Diningtable &    618 \\
+    Bicycle      & 695        & Dog         &  1{,}234 \\
+    Bird         & 1{,}056    & Horse       &    611 \\
+    Boat         & 854        & Motorbike   &    640 \\
+    Bottle       & 1{,}226    & \textbf{Person} & \textbf{13{,}168} \\
+    Bus          & 537        & Pottedplant &    951 \\
+    Car          & 1{,}988    & Sheep       &    858 \\
+    Cat          & 1{,}034    & Sofa        &    677 \\
+    Chair        & 2{,}467    & Train       &    561 \\
+    Cow          & 638        & TVmonitor   &    735 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Rather than downsampling the person class, we retain the full dataset.
+Removing person annotations would corrupt the ground truth for the many
+images that contain both people and other objects, since annotations
+cannot be stripped in isolation.
+Instead, we rely on YOLOv5's built-in mechanisms for handling class imbalance.
+The model uses \textbf{focal loss}, which down-weights well-classified
+easy examples and concentrates the gradient signal on harder, under-represented
+cases.
+Furthermore, performance is reported as per-class Average Precision (AP),
+so the dominance of the person class cannot mask weaknesses on minority
+classes in the final evaluation.
+
+%% ===========================================================
 \section{Overview of You Only Look Once (YOLO)}
 
 You Only Look Once (YOLO) is a \textbf{real-time object detection} algorithm that formulates detection as a single regression problem. Instead of applying a classifier at multiple locations, YOLO processes the entire image in one forward pass of a neural network.
