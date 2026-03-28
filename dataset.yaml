@@ -1,0 +1,25 @@
+path: /home/guest/Desktop/Neural-Network-Group3-Project/Pascal VOC 2012.v1
+train: train/images
+val: valid/images
+nc: 20
+names:
+- aeroplane
+- bicycle
+- bird
+- boat
+- bottle
+- bus
+- car
+- cat
+- chair
+- cow
+- diningtable
+- dog
+- horse
+- motorbike
+- person
+- pottedplant
+- sheep
+- sofa
+- train
+- tvmonitor

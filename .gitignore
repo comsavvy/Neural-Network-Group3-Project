@@ -7,3 +7,8 @@
 *.synctex.gz
 *.fdb_latexmk
 Pascal VOC 2012.v1/
+# model weights & training outputs
+yolov5su.pt
+runs/
+*.pt
+.ipynb_checkpoints/
