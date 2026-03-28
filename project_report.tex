@@ -1,0 +1,154 @@
+%% ===========================================================
+%%  Project Report — Introduction to Neural Networks
+%%  AIMS Rwanda, Kigali  |  March 2026
+%% ===========================================================
+\documentclass[12pt, a4paper]{article}
+
+%% ---------- packages ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{amsmath, amssymb}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+
+%% ---------- colours ----------
+\definecolor{aimsblue}{RGB}{0, 70, 127}
+\definecolor{aimsgold}{RGB}{204, 153, 0}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+\definecolor{midgray}{RGB}{100, 100, 100}
+
+%% ---------- hyperref setup ----------
+\hypersetup{
+  colorlinks = true,
+  urlcolor   = aimsblue,
+  linkcolor  = aimsblue,
+  citecolor  = aimsblue,
+}
+
+%% ===========================================================
+\begin{document}
+
+%% ==================  TITLE PAGE  ==========================
+\begin{titlepage}
+\newgeometry{margin=0pt}
+
+%% ── top colour band ──────────────────────────────────────
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[aimsblue] (current page.north west) rectangle
+    ([yshift=-3.5cm] current page.north east);
+  \fill[aimsgold]  ([yshift=-3.5cm] current page.north west) rectangle
+    ([yshift=-3.8cm] current page.north east);
+\end{tikzpicture}
+
+\vspace*{1.2cm}
+\begin{center}
+  %% institution
+  {\color{white}\fontsize{13}{16}\selectfont\bfseries
+    AFRICAN INSTITUTE FOR MATHEMATICAL SCIENCES}\\[0.25cm]
+  {\color{white}\fontsize{11}{14}\selectfont
+    AIMS Rwanda, Kigali}\\[0.15cm]
+  {\color{aimsgold}\fontsize{10}{12}\selectfont\itshape
+    Excellence in Mathematical Sciences}
+\end{center}
+
+\vspace{2.0cm}
+
+%% ── decorative rule ──────────────────────────────────────
+\begin{center}
+  \begin{tikzpicture}
+    \draw[aimsblue, line width=2pt] (0,0) -- (13,0);
+    \draw[aimsgold, line width=1pt] (0,-0.18) -- (13,-0.18);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.8cm}
+
+%% ── course & report type ─────────────────────────────────
+\begin{center}
+  {\color{midgray}\large\scshape Course}\\[0.3cm]
+  {\color{aimsblue}\LARGE\bfseries Introduction to Neural Networks}\\[0.5cm]
+  {\color{midgray}\large\scshape Project Report — Assignment II}
+\end{center}
+
+\vspace{0.9cm}
+
+%% ── project title box ────────────────────────────────────
+\begin{center}
+  \begin{tikzpicture}
+    \node[draw=aimsblue, fill=lightgray, line width=1.5pt,
+          rounded corners=6pt, inner sep=14pt,
+          text width=12cm, align=center] {
+      {\color{aimsblue}\Huge\bfseries Object Detection}\\[0.5em]
+      {\color{midgray}\large with YOLOv5 on the Pascal VOC Dataset}
+    };
+  \end{tikzpicture}
+\end{center}
+
+\vspace{1.1cm}
+
+%% ── summary table ────────────────────────────────────────
+\begin{center}
+  \begin{tabular}{>{\bfseries\color{aimsblue}}l
+                  >{\color{black}}l}
+    Algorithm  & YOLOv5 (You Only Look Once — version 5) \\[3pt]
+    Dataset    & Pascal VOC 2012 (20 object classes)     \\[3pt]
+    Framework  & Python / PyTorch                        \\[3pt]
+    Date       & March 2026                              \\
+  \end{tabular}
+\end{center}
+
+\vspace{1.2cm}
+
+%% ── second rule ──────────────────────────────────────────
+\begin{center}
+  \begin{tikzpicture}
+    \draw[aimsgold, line width=1pt] (0,0) -- (13,0);
+    \draw[aimsblue, line width=2pt] (0,-0.18) -- (13,-0.18);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.9cm}
+
+%% ── group members ────────────────────────────────────────
+\begin{center}
+  {\color{midgray}\large\scshape Group 3 — Members}\\[0.6cm]
+  \begin{tabular}{c}
+    {\large\bfseries Olusola Timothy Ogundepo}   \\[0.5em]
+    {\large\bfseries Lillian Mutesi}              \\[0.5em]
+    {\large\bfseries Lucas Mirija Razafimanantsoa}\\[0.5em]
+    {\large\bfseries Alliance Irigenera}          \\
+  \end{tabular}
+\end{center}
+
+%% ── bottom colour band ───────────────────────────────────
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[aimsgold]  ([yshift=1.2cm] current page.south west) rectangle
+    ([yshift=1.5cm] current page.south east);
+  \fill[aimsblue] (current page.south west) rectangle
+    ([yshift=1.2cm] current page.south east);
+  \node[color=white, font=\small] at
+    ([yshift=0.6cm] current page.south) {%
+      AIMS Rwanda \textbullet\ Introduction to Neural Networks
+      \textbullet\ March 2026};
+\end{tikzpicture}
+
+\end{titlepage}
+
+\restoregeometry
+
+%% ==================  END OF TITLE PAGE  ====================
+%% Add your report content below this line.
+
+\end{document}
+
