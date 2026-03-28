@@ -155,6 +155,50 @@
 Object detection is a fundamental task in computer vision that involves identifying and localizing objects within an image. In this project, we implemented the YOLOv5 algorithm to perform object detection on the Pascal VOC 2012 dataset, which contains images of 20 different object classes. The goal was to train a model that can accurately detect and classify objects in the images, and to evaluate its performance using standard metrics.
 
 
+\section{Overview of You Only Look Once (YOLO)}
+
+You Only Look Once (YOLO) is a \textbf{real-time object detection} algorithm that formulates detection as a single regression problem. Instead of applying a classifier at multiple locations, YOLO processes the entire image in one forward pass of a neural network.
+
+\subsection{Definitions}
+
+\textbf{Object Detection:} The task of identifying and localizing objects in an image. Localization is typically done using \textbf{bounding boxes}, which are rectangles defined by their center coordinates, width, and height.
+
+\textbf{Grid:} The input image is divided into an $S \times S$ grid. Each grid cell is responsible for detecting objects whose center lies within it.
+
+\textbf{Bounding Box:} A rectangle described by $(x, y, w, h)$, where $(x,y)$ is the center, and $(w,h)$ are width and height, usually normalized by the image size.
+
+\textbf{Confidence Score:} Measures how likely a bounding box contains an object and how accurate the box is. It is often defined as:
+\[
+\text{Confidence} = P(\text{object}) \times \text{IoU}
+\]
+
+\textbf{Intersection over Union (IoU):} A metric that measures the overlap between the predicted box and the ground truth:
+\[
+\text{IoU} = \frac{\text{Area of Overlap}}{\text{Area of Union}}
+\]
+
+\textbf{Class Probability:} Each grid cell predicts probabilities for each object class, representing the likelihood that a detected object belongs to a given category (output)
+
+\subsection{YOLO Pipeline}
+
+\begin{itemize}
+	\item The image is divided into an $S \times S$ grid.
+	\item Each grid cell predicts:
+	\begin{itemize}
+		\item $B$ bounding boxes,
+		\item Confidence scores for each box,
+		\item Class probabilities.
+	\end{itemize}
+	\item Predictions are combined to produce final detections.
+	\item \textbf{Non-Maximum Suppression (NMS)} is applied to remove duplicate boxes by keeping only the highest-confidence predictions.
+\end{itemize}
+
+
+\section{Model Training}
+
+
+\section{Advantages and Limitations}
+
 
 
 
