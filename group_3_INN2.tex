@@ -2,7 +2,7 @@
 %%  Project Report — Introduction to Neural Networks
 %%  AIMS Rwanda, Kigali  |  March 2026
 %% ===========================================================
-\documentclass[11pt, a4paper]{article}
+\documentclass[10pt, a4paper]{article}
 
 %% ---------- packages ----------
 \usepackage[T1]{fontenc}
@@ -320,16 +320,40 @@ The mean loss values obtained are:
 \end{itemize}
 
 \subsection{Project-specific considerations}
+
 \begin{itemize}
-	\item \textbf{Limited dataset size:} Training on a small subset restricts the model's ability to generalize and may lead to overfitting.
+	\item \textbf{Limited dataset size:} Only 500 out of 13,690 images were used, limiting generalisation and increasing overfitting risk.
 	
-	\item \textbf{Reduced image resolution:} Images were resized for faster computation, which can degrade detection performance, especially for fine details.
+	\item \textbf{Reduced image resolution:} Training at $128\times128$ leads to loss of fine details and poorer detection of small objects.
 	
-	\item \textbf{Computational constraints:} The model was trained on limited hardware, requiring simplifications in architecture and training duration, which impacts overall accuracy.
+	\item \textbf{Computational constraints:} CPU-only training imposed a simpler architecture and limited training to 10 epochs, preventing full convergence.
 	
-	\item \textbf{Class imbalance bias:} The prevalence of the \textit{person} class can bias the model towards detecting people more frequently than other classes.
+	\item \textbf{Data augmentation issue:} Horizontal flips were not consistently applied to bounding boxes, corrupting a significant portion of labels.
+	
+	\item \textbf{Class imbalance:} The dominance of the \textit{person} class biases predictions toward that category.
+	
+	\item \textbf{Evaluation limitation:} Performance was assessed using loss only, without standard metrics such as mAP@0.5.
 \end{itemize}
 
+\subsection{Possible improvements}
+
+\begin{itemize}
+	\item \textbf{Use full dataset:} Train on all 13,690 images to improve generalisation.
+	
+	\item \textbf{Higher resolution + GPU:} Train at $416\times416$ with GPU acceleration for better detection performance.
+	
+	\item \textbf{Correct data augmentation:} Apply horizontal flips jointly to images and bounding boxes ($c_x \rightarrow 1 - c_x$).
+	
+	\item \textbf{Anchor box optimisation:} Use k-means clustering on ground-truth boxes to improve localisation.
+	
+	\item \textbf{Learning rate scheduling:} Use strategies such as cosine annealing to stabilise training.
+	
+	\item \textbf{Better evaluation metrics:} Report mAP@0.5 for standardised performance comparison.
+	
+	\item \textbf{Handle class imbalance:} Use focal loss to reduce bias toward dominant classes.
+	
+	\item \textbf{Transfer learning:} Initialise from a pretrained backbone to improve convergence and accuracy.
+\end{itemize}
 
 
 
