@@ -2,7 +2,7 @@
 %%  Project Report — Introduction to Neural Networks
 %%  AIMS Rwanda, Kigali  |  March 2026
 %% ===========================================================
-\documentclass[12pt, a4paper]{article}
+\documentclass[11pt, a4paper]{article}
 
 %% ---------- packages ----------
 \usepackage[T1]{fontenc}
@@ -188,83 +188,11 @@ Object detection is a fundamental task in computer vision that involves identify
 
 \subsection{Pascal VOC 2012}
 
-The Pascal VOC 2012 (Visual Object Classes) dataset is a widely used benchmark
-for evaluating object detection and image segmentation algorithms.
-It contains real-world photographs spanning \textbf{20 object categories}:
-aeroplane, bicycle, bird, boat, bottle, bus, car, cat, chair, cow,
-dining table, dog, horse, motorbike, person, potted plant, sheep, sofa,
-train, and TV monitor.
+The Pascal VOC 2012 dataset is a standard benchmark for object detection, containing real-world images annotated across 20 object classes such as person, car, dog, and bicycle.
 
-Each image is annotated with axis-aligned bounding boxes in YOLO format:
-one text file per image, each line encoding a single object as
-$\langle\text{class}\rangle\;x_c\;y_c\;w\;h$,
-where $(x_c, y_c)$ is the box centre and $(w, h)$ its width and height,
-all normalised to $[0,1]$ relative to the image dimensions.
-The dataset is divided into two splits as shown in Table~\ref{tab:splits}.
+For this project, the dataset is used in the YOLO format, where each image is associated with a text file containing normalized bounding box annotations. This format is directly compatible with PyTorch-based YOLO implementations, requiring no additional conversion.
 
-\begin{table}[h!]
-  \centering
-  \caption{Dataset split sizes}
-  \label{tab:splits}
-  \begin{tabular}{lc}
-    \toprule
-    \textbf{Split} & \textbf{Images} \\
-    \midrule
-    Train          & 13{,}690        \\
-    Validation     &  3{,}422        \\
-    \midrule
-    \textbf{Total} & \textbf{17{,}112} \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\subsection{Class Distribution and Imbalance}
-
-Table~\ref{tab:classdist} reports the number of annotated instances per class
-in the training set.
-The distribution is severely skewed: the \textbf{person} class dominates
-with \textbf{13{,}168} instances — more than five times the count of the next
-most frequent class (\textit{chair}, 2{,}467) and roughly 24 times that of
-the least represented class (\textit{bus}, 537).
-This pattern reflects a natural bias in everyday photography, where people
-appear far more frequently than other object categories.
-
-\begin{table}[h!]
-  \centering
-  \caption{Annotated instances per class in the training set.
-           The dominant class is highlighted.}
-  \label{tab:classdist}
-  \begin{tabular}{lc lc}
-    \toprule
-    \textbf{Class}  & \textbf{Instances}
-    & \textbf{Class}  & \textbf{Instances} \\
-    \midrule
-    Aeroplane    & 808        & Diningtable &    618 \\
-    Bicycle      & 695        & Dog         &  1{,}234 \\
-    Bird         & 1{,}056    & Horse       &    611 \\
-    Boat         & 854        & Motorbike   &    640 \\
-    Bottle       & 1{,}226    & \textbf{Person} & \textbf{13{,}168} \\
-    Bus          & 537        & Pottedplant &    951 \\
-    Car          & 1{,}988    & Sheep       &    858 \\
-    Cat          & 1{,}034    & Sofa        &    677 \\
-    Chair        & 2{,}467    & Train       &    561 \\
-    Cow          & 638        & TVmonitor   &    735 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Rather than downsampling the person class, we retain the full dataset.
-Removing person annotations would corrupt the ground truth for the many
-images that contain both people and other objects, since annotations
-cannot be stripped in isolation.
-Instead, we rely on YOLOv5's built-in mechanisms for handling class imbalance.
-The model uses \textbf{focal loss}, which down-weights well-classified
-easy examples and concentrates the gradient signal on harder, under-represented
-cases.
-Furthermore, performance is reported as per-class Average Precision (AP),
-so the dominance of the person class cannot mask weaknesses on minority
-classes in the final evaluation.
-
+Since the data was stored locally, a custom helper module \texttt{YOLODataset} was used to load images and corresponding labels, ensuring proper parsing of annotations and integration with the training pipeline.
 %% ===========================================================
 \section{Overview of You Only Look Once (YOLO)}
 
@@ -305,10 +233,88 @@ You Only Look Once (YOLO) is a \textbf{real-time object detection} algorithm tha
 \end{itemize}
 
 
-\section{Model Training}
+\section{Model Training and Evaluation}
+\subsection{YOLO Loss Function}
 
+The loss function used in this model is composed of three main components: localization, confidence, and classification losses. Let $\hat{y}$ denote the predictions and $y$ the ground truth.
+
+\begin{itemize}
+	\item \textbf{Localization Loss:} Measures the error between predicted and true bounding box coordinates $(x, y, w, h)$:
+	\[
+	\mathcal{L}_{\text{box}} = \lambda_{\text{coord}} \sum (\hat{b} - b)^2
+	\]
+	
+	\item \textbf{Confidence Loss:} Measures the accuracy of object presence prediction:
+	\[
+	\mathcal{L}_{\text{obj}} = \sum (\hat{c} - c)^2
+	\]
+	\[
+	\mathcal{L}_{\text{noobj}} = \lambda_{\text{noobj}} \sum_{\{c=0\}} \hat{c}^2
+	\]
+	
+	\item \textbf{Classification Loss:} Measures the error in predicted class probabilities:
+	\[
+	\mathcal{L}_{\text{class}} = \sum (\hat{p} - p)^2
+	\]
+\end{itemize}
+
+The total loss is given by:
+\[
+\mathcal{L} = \mathcal{L}_{\text{box}} + \mathcal{L}_{\text{obj}} + \mathcal{L}_{\text{noobj}} + \mathcal{L}_{\text{class}}
+\]
+
+where $\lambda_{\text{coord}}$ and $\lambda_{\text{noobj}}$ are weighting parameters used to balance the contribution of each term.
+
+\subsection{Training Procedure}
+
+For computational efficiency, the model is trained on a subset of the dataset, with all images resized to a fixed resolution. The network is optimized using the Adam optimizer with a learning rate of $10^{-3}$ over a fixed number of epochs.
+
+At each iteration, the ground truth annotations are transformed into the YOLO grid-based representation using a helper function \texttt{encode\_target}, which maps bounding boxes and class labels into a tensor of shape $S \times S \times (B \cdot 5 + B \cdot C)$.
+
+Here, $S$ denotes the grid size (the image is divided into an $S \times S$ grid), $B$ is the number of bounding boxes predicted per grid cell, and $C$ is the number of object classes. The term $5$ corresponds to the parameters $(x, y, w, h, c)$, where $(x, y)$ are the box center coordinates, $(w, h)$ its width and height, and $c$ the confidence score.
+
+The model predictions are then compared to the encoded targets using the YOLO loss function, and parameters are updated via backpropagation.
+
+
+\subsection{Evaluation}
+
+The model is evaluated by computing the mean YOLO loss over different datasets. In evaluation mode, no gradient updates are performed, and the loss is averaged across all batches.
+
+The mean loss values obtained are:
+\begin{itemize}
+	\item Training set: \underline{\hspace{2cm}}
+	\item Validation set: \underline{\hspace{2cm}}
+	\item Augmented training set: \underline{\hspace{2cm}}
+\end{itemize}
 
 \section{Advantages and Limitations}
+
+\subsection{Advantages of YOLO}
+\begin{itemize}
+	\item \textbf{Real-time detection:} YOLO performs object detection in a single forward pass, making it significantly faster than region-based methods.
+	
+	\item \textbf{Global reasoning:} The model processes the entire image at once, allowing it to capture contextual information and reduce false positives.
+	
+	\item \textbf{End-to-end training:} Detection is formulated as a single regression problem, simplifying the pipeline compared to multi-stage approaches.
+\end{itemize}
+
+\subsection{Limitations of YOLO}
+\begin{itemize}
+	\item \textbf{Localization errors:} The grid-based structure can lead to imprecise bounding boxes, especially for small objects.
+	
+	\item \textbf{Limited capacity per grid cell:} Each cell predicts a fixed number of boxes, which may cause missed detections when multiple objects are close together.
+	
+	\item \textbf{Sensitivity to small objects:} Objects occupying a small portion of the image are harder to detect due to spatial downsampling.
+\end{itemize}
+
+\subsection{Project-specific considerations}
+\begin{itemize}
+	\item \textbf{Limited dataset size:} Training on a small subset restricts the model's ability to generalize and may lead to overfitting.
+	
+	\item \textbf{Reduced image resolution:} Images were resized for faster computation, which can degrade detection performance, especially for fine details.
+	
+	\item \textbf{Computational constraints:} The model was trained on limited hardware, requiring simplifications in architecture and training duration, which impacts overall accuracy.
+\end{itemize}
 
 
 
