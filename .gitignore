@@ -12,3 +12,5 @@ yolov5su.pt
 runs/
 *.pt
 .ipynb_checkpoints/
+*.snm
+*.nav
