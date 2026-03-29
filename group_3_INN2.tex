@@ -193,7 +193,9 @@ The Pascal VOC 2012 dataset is a standard benchmark for object detection, contai
 For this project, the dataset is used in the YOLO format, where each image is associated with a text file containing normalized bounding box annotations. This format is directly compatible with PyTorch-based YOLO implementations, requiring no additional conversion.
 
 Since the data was stored locally, a custom helper module \texttt{YOLODataset} was used to load images and corresponding labels, ensuring proper parsing of annotations and integration with the training pipeline.
-%% ===========================================================
+
+It is important to note that the dataset exhibits class imbalance, with certain classes (such as \textit{person}) appearing significantly more frequently than others. %===========================================================
+
 \section{Overview of You Only Look Once (YOLO)}
 
 You Only Look Once (YOLO) is a \textbf{real-time object detection} algorithm that formulates detection as a single regression problem. Instead of applying a classifier at multiple locations, YOLO processes the entire image in one forward pass of a neural network.
@@ -314,6 +316,8 @@ The mean loss values obtained are:
 	\item \textbf{Reduced image resolution:} Images were resized for faster computation, which can degrade detection performance, especially for fine details.
 	
 	\item \textbf{Computational constraints:} The model was trained on limited hardware, requiring simplifications in architecture and training duration, which impacts overall accuracy.
+	
+	\item \textbf{Class imbalance bias:} The prevalence of the \textit{person} class can bias the model towards detecting people more frequently than other classes.
 \end{itemize}
 
 
