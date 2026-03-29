@@ -8,7 +8,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
-\usepackage[margin=2.5cm, headheight=16.8pt]{geometry}
+\usepackage[margin=1.7cm, headheight=16.8pt]{geometry}
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{tikz}
@@ -79,7 +79,7 @@
     ([yshift=-3.8cm] current page.north east);
 \end{tikzpicture}
 
-\vspace*{1.2cm}
+\vspace*{0.8cm}
 \begin{center}
   %% institution
   {\color{white}\fontsize{13}{16}\selectfont\bfseries
@@ -238,35 +238,44 @@ You Only Look Once (YOLO) is a \textbf{real-time object detection} algorithm tha
 \section{Model Training and Evaluation}
 \subsection{YOLO Loss Function}
 
-The loss function used in this model is composed of three main components: localization, confidence, and classification losses. Let $\hat{y}$ denote the predictions and $y$ the ground truth.
+The implemented loss function follows a grid-based formulation and is computed over all anchors. Let $\hat{y}$ denote predictions and $y$ the ground truth. For each anchor $b \in \{1,\dots,B\}$, the prediction vector is decomposed into:
+\[
+(\hat{x}, \hat{y}, \hat{w}, \hat{h}, \hat{c}, \hat{p}_1, \dots, \hat{p}_C)
+\]
+
+An indicator variable $obj \in \{0,1\}$ specifies whether an object is present in a given grid cell.
 
 \begin{itemize}
-	\item \textbf{Localization Loss:} Measures the error between predicted and true bounding box coordinates $(x, y, w, h)$:
+	\item \textbf{Localization Loss:} Applied only when an object is present ($obj = 1$), with sigmoid activation on coordinates and square root transformation on width and height:
 	\[
-	\mathcal{L}_{\text{box}} = \lambda_{\text{coord}} \sum (\hat{b} - b)^2
+	\mathcal{L}_{xy} = \lambda_{\text{coord}} \sum obj \left[ (\sigma(\hat{x}) - x)^2 + (\sigma(\hat{y}) - y)^2 \right]
+	\]
+	\[
+	\mathcal{L}_{wh} = \lambda_{\text{coord}} \sum obj \left[ (\sqrt{\hat{w}} - \sqrt{w})^2 + (\sqrt{\hat{h}} - \sqrt{h})^2 \right]
 	\]
 	
-	\item \textbf{Confidence Loss:} Measures the accuracy of object presence prediction:
+	\item \textbf{Confidence Loss:}
 	\[
-	\mathcal{L}_{\text{obj}} = \sum (\hat{c} - c)^2
+	\mathcal{L}_{\text{obj}} = \sum obj \, (\sigma(\hat{c}) - c)^2
 	\]
 	\[
-	\mathcal{L}_{\text{noobj}} = \lambda_{\text{noobj}} \sum_{\{c=0\}} \hat{c}^2
+	\mathcal{L}_{\text{noobj}} = \lambda_{\text{noobj}} \sum (1 - obj)\, \sigma(\hat{c})^2
 	\]
 	
-	\item \textbf{Classification Loss:} Measures the error in predicted class probabilities:
+	\item \textbf{Classification Loss:} Computed only for cells containing objects:
 	\[
-	\mathcal{L}_{\text{class}} = \sum (\hat{p} - p)^2
+	\mathcal{L}_{\text{class}} = \sum obj \sum_{k=1}^{C} (\hat{p}_k - p_k)^2
 	\]
 \end{itemize}
 
-The total loss is given by:
+The total loss is obtained by summing over all anchors and averaging over the batch:
 \[
-\mathcal{L} = \mathcal{L}_{\text{box}} + \mathcal{L}_{\text{obj}} + \mathcal{L}_{\text{noobj}} + \mathcal{L}_{\text{class}}
+\mathcal{L} = \frac{1}{N} \sum_{b=1}^{B} \left(
+\mathcal{L}_{xy} + \mathcal{L}_{wh} + \mathcal{L}_{\text{obj}} + \mathcal{L}_{\text{noobj}} + \mathcal{L}_{\text{class}}
+\right)
 \]
 
-where $\lambda_{\text{coord}}$ and $\lambda_{\text{noobj}}$ are weighting parameters used to balance the contribution of each term.
-
+where $\lambda_{\text{coord}}$ and $\lambda_{\text{noobj}}$ are weighting parameters controlling the contribution of localization and no-object confidence terms.
 \subsection{Training Procedure}
 
 For computational efficiency, the model is trained on a subset of the dataset, with all images resized to a fixed resolution. The network is optimized using the Adam optimizer with a learning rate of $10^{-3}$ over a fixed number of epochs.
